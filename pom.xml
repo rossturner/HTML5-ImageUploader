@@ -51,6 +51,21 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>jslint-maven-plugin</artifactId>
+				<version>1.0.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>jslint</goal>
+						</goals>
+						<configuration>
+							<sourceJsFolder>${basedir}/src/main/webapp/js</sourceJsFolder>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
@@ -85,8 +100,8 @@
 			<type>pom</type>
 			<scope>test</scope>
 		</dependency>
-		
-		
+
+
 	</dependencies>
 	<properties>
 		<jersey-version>1.8</jersey-version>
