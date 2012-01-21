@@ -16,4 +16,14 @@
 		<servlet-name>Jersey Web Application</servlet-name>
 		<url-pattern>/api/*</url-pattern>
 	</servlet-mapping>
+
+	<servlet>
+		<!-- Override init parameter to avoid nasty file locking issue on windows. -->
+		<!-- Note that Tomcat will complain about this -->
+		<servlet-name>default</servlet-name>
+		<init-param>
+			<param-name>useFileMappedBuffer</param-name>
+			<param-value>false</param-value>
+		</init-param>
+	</servlet>
 </web-app>
