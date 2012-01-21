@@ -62,6 +62,7 @@
 						</goals>
 						<configuration>
 							<sourceJsFolder>${basedir}/src/main/webapp/js</sourceJsFolder>
+							<allowOneVarStatementPerFunction>false</allowOneVarStatementPerFunction>
 						</configuration>
 					</execution>
 				</executions>
