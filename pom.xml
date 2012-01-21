@@ -1,0 +1,120 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>net.rossturner</groupId>
+	<artifactId>imageuploader</artifactId>
+	<packaging>war</packaging>
+	<version>0.1-SNAPSHOT</version>
+	<name>imageuploader Jersey Webapp</name>
+	<build>
+		<finalName>imageuploader</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<inherited>true</inherited>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+
+
+			<plugin>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<version>8.0.0.v20110901</version>
+				<configuration>
+					<scanIntervalSeconds>5</scanIntervalSeconds>
+					<stopKey>hammertime</stopKey>
+					<stopPort>9999</stopPort>
+					
+				</configuration>
+				<executions>
+					<execution>
+						<id>start-jetty</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<scanIntervalSeconds>0</scanIntervalSeconds>
+							<daemon>true</daemon>
+						</configuration>
+					</execution>
+					<execution>
+						<id>stop-jetty</id>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>stop</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-server</artifactId>
+			<version>${jersey-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-json</artifactId>
+			<version>${jersey-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>${jersey-version}</version>
+		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.glassfish.distributions</groupId> -->
+		<!-- <artifactId>web-all</artifactId> -->
+		<!-- <version>10.0-build-20080430</version> -->
+		<!-- <scope>test</scope> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.glassfish.embedded</groupId> -->
+		<!-- <artifactId>gf-embedded-api</artifactId> -->
+		<!-- <version>1.0-alpha-4</version> -->
+		<!-- <scope>test</scope> -->
+		<!-- </dependency> -->
+
+
+		<!-- Test Scope dependencies -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.10</version>
+			<type>jar</type>
+		</dependency>
+
+	</dependencies>
+	<properties>
+		<jersey-version>1.8</jersey-version>
+	</properties>
+	<repositories>
+		<!-- <repository> -->
+		<!-- <id>glassfish.java.net</id> -->
+		<!-- <name>GlassFish Maven Repository</name> -->
+		<!-- <url>http://download.java.net/maven/glassfish</url> -->
+		<!-- <layout>default</layout> -->
+		<!-- </repository> -->
+		<repository>
+			<id>m2.java.net</id>
+			<name>Java.net Maven 2 Repository</name>
+			<url>http://download.java.net/maven/2</url>
+			<layout>default</layout>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>m2.java.net</id>
+			<name>Java.net Maven 2 Repository</name>
+			<url>http://download.java.net/maven/2</url>
+			<layout>default</layout>
+		</pluginRepository>
+	</pluginRepositories>
+</project>
