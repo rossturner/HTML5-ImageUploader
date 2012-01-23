@@ -51,22 +51,22 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>jslint-maven-plugin</artifactId>
-				<version>1.0.0</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>jslint</goal>
-						</goals>
-						<configuration>
-							<sourceJsFolder>${basedir}/src/main/webapp/js</sourceJsFolder>
-							<allowOneVarStatementPerFunction>false</allowOneVarStatementPerFunction>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+<!-- 			<plugin> -->
+<!-- 				<groupId>org.codehaus.mojo</groupId> -->
+<!-- 				<artifactId>jslint-maven-plugin</artifactId> -->
+<!-- 				<version>1.0.0</version> -->
+<!-- 				<executions> -->
+<!-- 					<execution> -->
+<!-- 						<goals> -->
+<!-- 							<goal>jslint</goal> -->
+<!-- 						</goals> -->
+<!-- 						<configuration> -->
+<!-- 							<sourceJsFolder>${basedir}/src/main/webapp/js</sourceJsFolder> -->
+<!-- 							<allowOneVarStatementPerFunction>false</allowOneVarStatementPerFunction> -->
+<!-- 						</configuration> -->
+<!-- 					</execution> -->
+<!-- 				</executions> -->
+<!-- 			</plugin> -->
 		</plugins>
 	</build>
 	<dependencies>
