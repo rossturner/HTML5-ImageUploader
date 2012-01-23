@@ -42,15 +42,33 @@ var ImageUploader = (function() {
             setTimeout(function() {
                 var canvas = document.createElement('canvas');
 
-                //canvas.width = img.width / 4;
-                //canvas.height = img.height / 4;
+                canvas.width = img.width / 2;
+                canvas.height = img.height / 2;
 
                 config.workspace.appendChild(canvas);
                 
-                thumbnailer(canvas, img, 1024, 1);
+                //thumbnailer(canvas, img, 1024, 1);
                 
-                //var context = canvas.getContext('2d');
-                //context.drawImage(img, 0, 0, canvas.width, canvas.height);
+                var context = canvas.getContext('2d');
+                context.drawImage(img, 0, 0, canvas.width, canvas.height);
+                
+                var resizedImage = document.createElement('img');
+                config.workspace.appendChild(resizedImage);
+                
+                resizedImage.src = canvas.toDataURL('image/png');
+                
+                // ugh
+                setTimeout(function() {
+                    var canvas2 = document.createElement('canvas');
+
+                    canvas2.width = resizedImage.width / 2;
+                    canvas2.height = resizedImage.height / 2;
+
+                    config.workspace.appendChild(canvas2);
+                    canvas2.getContext('2d').drawImage(resizedImage, 0, 0, canvas2.width, canvas2.height);
+                }, 300);
+                
+                
             }, 400);
         }
         reader.readAsDataURL(file);
