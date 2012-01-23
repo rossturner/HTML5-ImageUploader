@@ -55,7 +55,7 @@ var ImageUploader = (function() {
                 var resizedImage = document.createElement('img');
                 config.workspace.appendChild(resizedImage);
                 
-                resizedImage.src = canvas.toDataURL('image/png');
+                resizedImage.src = canvas.toDataURL('image/jpeg');
                 
                 // ugh
                 setTimeout(function() {
@@ -66,6 +66,12 @@ var ImageUploader = (function() {
 
                     config.workspace.appendChild(canvas2);
                     canvas2.getContext('2d').drawImage(resizedImage, 0, 0, canvas2.width, canvas2.height);
+                    
+                    var quarterImage = document.createElement('img');
+                    config.workspace.appendChild(quarterImage);
+                    
+                    quarterImage.src = canvas2.toDataURL('image/jpeg');
+                    
                 }, 300);
                 
                 
