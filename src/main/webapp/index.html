@@ -25,24 +25,25 @@
 		<li><s>Input type file (multiple) for image selection</s></li>
 		<li>Javascript unit tests on behaviour of ImageUploader module</li>
 		<li>Drag and drop image selection</li>
-		<li>Client-side image preview in div / img / canvas</li>
+		<li><s>Client-side image preview in div / img / canvas</s></li>
 		<li>Upload progress bar</li>
-		<li>Client side resize to specified max width and/or height using Canvas and <a href="http://www.philou.ch/js-bilinear-interpolation.html">bilinear interpolation</a></li>
+		<li><s>Client side resize to specified max width and/or height using Canvas and <a href="http://www.philou.ch/js-bilinear-interpolation.html">bilinear interpolation</a></s></li>
 		<li>web workers if supported for client side operations such as resize algorithm</li> 
 		<li>XMLHttpRequest2 for file upload with progress status</li>
 		<li>Check for required javascript APIs (XMLHttpRequest2 and FileReader?) in current browser with optional callback for behaviour</li>
 	</ul>
 	
-	<h3>The ImageUploader in all its (little) glory!</h3>
+	<h3>The ImageUploader in all its glory!</h3>
 	
 	<input id="fileInputElement" type="file" multiple />
 	
 	<script type="text/javascript">
-		var inputElement = document.getElementById('fileInputElement');
 		var config = {
+		    inputElement: document.getElementById('fileInputElement'),
+		    //maxWidth: 1024,
 		    debug: true
 		}
-		ImageUploader.init(inputElement, config);
+		ImageUploader.init(config);
 	</script>
 </body>
 </html>
