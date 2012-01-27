@@ -1,0 +1,5 @@
+== HTML5 Image Uploader Readme ==
+
+The primary goal of this project is ImageUploader.js, a javascript module which can perform client-side resizing of images and uploads to a remote server using only HTML5 features (e.g. the Canvas and FileReader APIs).
+
+For demonstration purposes this is packaged with a Java web application with a RESTful service to handle the uploaded images. This is an Apache Maven project, use "mvn clean install" to build the webapp and "mvn jetty:run" to run the app on localhost:8080
