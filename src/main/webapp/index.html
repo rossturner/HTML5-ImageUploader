@@ -7,7 +7,7 @@
 <meta name="author" content="Ross Turner">
 
 <!-- CSS -->
-<link rel="stylesheet" href="http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css">
+<link rel="stylesheet" href="css/bootstrap.min.css">
 
 <!-- Javascript -->
 <script type="text/javascript" src="js/philou.ch.bilinear.interpolation.js"></script>
@@ -27,7 +27,7 @@
 		<li>Drag and drop image selection</li>
 		<li>Client-side image preview in div / img / canvas</li>
 		<li>Upload progress bar</li>
-		<li>Client side resize to specified max width and/or height using Canvas and <a href="http://stackoverflow.com/questions/2303690/resizing-an-image-in-an-html5-canvas">lanczos algorithm</a></li>
+		<li>Client side resize to specified max width and/or height using Canvas and <a href="http://www.philou.ch/js-bilinear-interpolation.html">bilinear interpolation</a></li>
 		<li>web workers if supported for client side operations such as resize algorithm</li> 
 		<li>XMLHttpRequest2 for file upload with progress status</li>
 		<li>Check for required javascript APIs (XMLHttpRequest2 and FileReader?) in current browser with optional callback for behaviour</li>
@@ -39,7 +39,10 @@
 	
 	<script type="text/javascript">
 		var inputElement = document.getElementById('fileInputElement');
-		ImageUploader.init(inputElement);
+		var config = {
+		    debug: true
+		}
+		ImageUploader.init(inputElement, config);
 	</script>
 </body>
 </html>
