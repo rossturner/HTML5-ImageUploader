@@ -3,45 +3,70 @@
 <head>
 <meta charset="utf-8">
 <title>HTML5 ImageUploader Example</title>
-<meta name="description" content="Example of a pure HTML5 Image client resize and upload tool">
+<meta name="description"
+	content="Example of a pure HTML5 Image client resize and upload tool">
 <meta name="author" content="Ross Turner">
 
 <!-- CSS -->
 <link rel="stylesheet" href="css/bootstrap.min.css">
+<link type="text/css" href="demo-only/css/start/jquery-ui-1.8.17.custom.css" rel="stylesheet" />	
 
 <!-- Javascript -->
 <script type="text/javascript" src="js/ImageUploader.js"></script>
+<script type="text/javascript" src="demo-only/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="demo-only/js/jquery-ui-1.8.17.custom.min.js"></script>
 
 <body>
 	<h2>HTML5 ImageUploader Example</h2>
 	<p>
 		<a href="api/image">Jersey resource</a>
 	</p>
-	
+
 	<h4>Todo List</h4>
 	<ul>
-		<li><s>Input type file (multiple) for image selection</s></li>
+		<li><s>Input type file (multiple) for image selection</s>
+		</li>
 		<li>Javascript unit tests on behaviour of ImageUploader module</li>
 		<li>Drag and drop image selection</li>
-		<li><s>Client-side image preview in div / img / canvas</s></li>
+		<li><s>Client-side image preview in div / img / canvas</s>
+		</li>
 		<li>Upload progress bar</li>
-		<li><s>Client side resize to specified max width and/or height using Canvas and <a href="http://www.philou.ch/js-bilinear-interpolation.html">bilinear interpolation</a></s></li>
-		<li>web workers if supported for client side operations such as resize algorithm</li> 
+		<li><s>Client side resize to specified max width and/or
+				height using Canvas and <a
+				href="http://www.philou.ch/js-bilinear-interpolation.html">bilinear
+					interpolation</a>
+		</s>
+		</li>
+		<li>web workers if supported for client side operations such as
+			resize algorithm</li>
 		<li>XMLHttpRequest2 for file upload with progress status</li>
-		<li>Check for required javascript APIs (XMLHttpRequest2 and FileReader?) in current browser with optional callback for behaviour</li>
+		<li>Check for required javascript APIs (XMLHttpRequest2 and
+			FileReader?) in current browser with optional callback for behaviour</li>
 	</ul>
-	
+
 	<h3>The ImageUploader in all its glory!</h3>
-	
+
 	<input id="fileInputElement" type="file" multiple />
-	
+
+	<div id="progress"></div>
+	<div id="progressbar"></div>
+
 	<script type="text/javascript">
-		var config = {
-		    inputElement: document.getElementById('fileInputElement'),
-		    //maxWidth: 1024,
-		    debug: true
-		}
-		ImageUploader.init(config);
-	</script>
+	
+        var config = {
+            inputElement : document.getElementById('fileInputElement'),
+            onProgress : function(event) {
+                $('#progress').text('Completed '+event.done+' files of '+event.total+' total.');
+                $('#progressbar').progressbar({ value: (event.done / event.total) * 100 })
+            },
+            onComplete : function(event) {
+                $('#progress').text('Completed all '+event.done+' files!');
+                $('#progressbar').progressbar({ value: (event.done / event.total) * 100 })
+            },
+            //maxWidth: 1024,
+            debug : true
+        }
+        ImageUploader.init(config);
+    </script>
 </body>
 </html>

@@ -26,7 +26,14 @@ var ImageUploader = (function() {
 			for (; cursor < config.inputElement.files.length; ++cursor) {
 				fileArray.push(config.inputElement.files[cursor]);
 			}
-			privateApi.handleFileList(fileArray);
+			var progressObject = {
+			    total: parseInt(fileArray.length, 10),
+			    done: 0
+			};
+			if (config.onProgress) {
+			    config.onProgress(progressObject);
+			}
+			privateApi.handleFileList(fileArray, progressObject);
 		}, false);
 
 		if (config.debug) {
@@ -34,15 +41,22 @@ var ImageUploader = (function() {
 		}
 	};
 
-	privateApi.handleFileList = function(fileArray) {
+	privateApi.handleFileList = function(fileArray, progressObject) {
 		if (fileArray.length > 1) {
 			var file = fileArray.shift();
 			privateApi.handleFileSelection(file, function() {
-				privateApi.handleFileList(fileArray);
+			    progressObject.done++;
+			    if (config.onProgress) {
+			        config.onProgress(progressObject);
+			    }
+				privateApi.handleFileList(fileArray, progressObject);
 			});
 		} else if (fileArray.length === 1) {
 			privateApi.handleFileSelection(fileArray[0], function() {
-				console.log('completed!');
+                progressObject.done++;
+			    if (config.onComplete) {
+			        config.onComplete(progressObject);
+			    }
 			});
 		}
 	};
@@ -149,7 +163,6 @@ var ImageUploader = (function() {
 	privateApi.setConfig = function(customConfig) {
 		if (customConfig) {
 			// Read in custom config variables
-			// TODO extract setter function
 			if (customConfig.inputElement) {
 				config.inputElement = customConfig.inputElement;
 			}
@@ -158,6 +171,12 @@ var ImageUploader = (function() {
 			}
 			if (customConfig.maxWidth) {
 				config.maxWidth = customConfig.maxWidth;
+			}
+			if (customConfig.onProgress) {
+			    config.onProgress = customConfig.onProgress;
+			}
+			if (customConfig.onComplete) {
+			    config.onComplete = customConfig.onComplete;
 			}
 		}
 
