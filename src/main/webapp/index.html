@@ -53,7 +53,7 @@
 
 	<script type="text/javascript">
 	
-		ImageUploader.init({
+		var uploader = new ImageUploader({
             inputElement : document.getElementById('fileInputElement'),
             onProgress : function(event) {
                 $('#progress').text('Completed '+event.done+' files of '+event.total+' total.');
