@@ -4,261 +4,231 @@
  * @author Ross Turner (https://github.com/zsinj)
  */
 var ImageUploader = (function() {
-	var publicApi = {};
-	var privateApi = {};
-	var config = {
-		debug : true
-	};
+    var publicApi = {};
+    var privateApi = {};
+    var config = {
+        debug : true
+    };
 
-	publicApi.init = function(customConfig) {
-		if ((!customConfig.inputElement)
-				|| (!customConfig.inputElement.getAttribute)
-				|| customConfig.inputElement.getAttribute('type') !== 'file') {
-			throw new Error(
-					'Config object passed to ImageUploader.init() must include "inputElement" set to be an element of type="file"');
-		}
+    publicApi.init = function(customConfig) {
+        if (!customConfig || (!customConfig.inputElement) || (!customConfig.inputElement.getAttribute) || customConfig.inputElement.getAttribute('type') !== 'file') {
+            throw new Error('Config object passed to ImageUploader.init() must include "inputElement" set to be an element of type="file"');
+        }
 
-		privateApi.setConfig(customConfig);
+        privateApi.setConfig(customConfig);
 
-		config.inputElement.addEventListener('change', function(event) {
-			var fileArray = [];
-			var cursor = 0;
-			for (; cursor < config.inputElement.files.length; ++cursor) {
-				fileArray.push(config.inputElement.files[cursor]);
-			}
-			var progressObject = {
-			    total: parseInt(fileArray.length, 10),
-			    done: 0
-			};
-			if (config.onProgress) {
-			    config.onProgress(progressObject);
-			}
-			privateApi.handleFileList(fileArray, progressObject);
-		}, false);
+        config.inputElement.addEventListener('change', function(event) {
+            var fileArray = [];
+            var cursor = 0;
+            for (; cursor < config.inputElement.files.length; ++cursor) {
+                fileArray.push(config.inputElement.files[cursor]);
+            }
+            var progressObject = {
+                total : parseInt(fileArray.length, 10),
+                done : 0
+            };
+            if (config.onProgress) {
+                config.onProgress(progressObject);
+            }
+            privateApi.handleFileList(fileArray, progressObject);
+        }, false);
 
-		if (config.debug) {
-			console.log('Initialised ImageUploader for ' + config.inputElement);
-		}
-	};
+        if (config.debug) {
+            console.log('Initialised ImageUploader for ' + config.inputElement);
+        }
+    };
 
-	privateApi.handleFileList = function(fileArray, progressObject) {
-		if (fileArray.length > 1) {
-			var file = fileArray.shift();
-			privateApi.handleFileSelection(file, function() {
-			    progressObject.done++;
-			    if (config.onProgress) {
-			        config.onProgress(progressObject);
-			    }
-				privateApi.handleFileList(fileArray, progressObject);
-			});
-		} else if (fileArray.length === 1) {
-			privateApi.handleFileSelection(fileArray[0], function() {
+    privateApi.handleFileList = function(fileArray, progressObject) {
+        if (fileArray.length > 1) {
+            var file = fileArray.shift();
+            privateApi.handleFileSelection(file, function() {
                 progressObject.done++;
-			    if (config.onComplete) {
-			        config.onComplete(progressObject);
-			    }
-			});
-		}
-	};
+                if (config.onProgress) {
+                    config.onProgress(progressObject);
+                }
+                privateApi.handleFileList(fileArray, progressObject);
+            });
+        } else if (fileArray.length === 1) {
+            privateApi.handleFileSelection(fileArray[0], function() {
+                progressObject.done++;
+                if (config.onComplete) {
+                    config.onComplete(progressObject);
+                }
+            });
+        }
+    };
 
-	privateApi.handleFileSelection = function(file, completionCallback) {
-		if (config.debug) {
-			console.log(file.name + ' started at ' + new Date().getTime());
-		}
+    privateApi.handleFileSelection = function(file, completionCallback) {
+        if (config.debug) {
+            console.log(file.name + ' started at ' + new Date().getTime());
+        }
 
-		var img = document.createElement('img');
-		// config.workspace.appendChild(img);
-		config.workspace.appendChild(document.createElement('br'));
-		var reader = new FileReader();
-		reader.onload = function(e) {
-			img.src = e.target.result;
+        var img = document.createElement('img');
+        // config.workspace.appendChild(img);
+        config.workspace.appendChild(document.createElement('br'));
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            img.src = e.target.result;
 
-			setTimeout(function() {
-				privateApi.scaleImage(img, completionCallback);
-			}, 1);
+            setTimeout(function() {
+                privateApi.scaleImage(img, completionCallback);
+            }, 1);
 
-		};
-		reader.readAsDataURL(file);
+        };
+        reader.readAsDataURL(file);
 
-	};
+    };
 
-	privateApi.scaleImage = function(img, completionCallback) {
+    privateApi.scaleImage = function(img, completionCallback) {
 
-		var canvas = document.createElement('canvas');
-		canvas.width = img.width;
-		canvas.height = img.height;
-		canvas.getContext('2d').drawImage(img, 0, 0, canvas.width,
-				canvas.height);
-		// config.workspace.appendChild(canvas);
+        var canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        // config.workspace.appendChild(canvas);
 
-		while (canvas.width >= (2 * config.maxWidth)) {
-			canvas = privateApi.getHalfScaleCanvas(canvas);
-		}
+        while (canvas.width >= (2 * config.maxWidth)) {
+            canvas = privateApi.getHalfScaleCanvas(canvas);
+        }
 
-		if (canvas.width > config.maxWidth) {
-			canvas = privateApi.scaleCanvasWithAlgorithm(canvas);
-		}
+        if (canvas.width > config.maxWidth) {
+            canvas = privateApi.scaleCanvasWithAlgorithm(canvas);
+        }
 
-		// config.workspace.appendChild(canvas);
-		var xhr = new XMLHttpRequest();
-		xhr.open('POST', 'api/image', true);
-		xhr.onload = function(e) {
-			console.log("Finished upload! e:");
-			console.log(e);
-		};
-		xhr.upload.addEventListener("progress", function(e) {
-			if (e.lengthComputable) {
-				var percentage = Math.round((e.loaded * 100) / e.total);
-				console.log("Uploaded: "+percentage);
-			}
-		}, false);
+        // config.workspace.appendChild(canvas);
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'api/image', true);
+        xhr.onload = function(e) {
+            console.log("Finished upload! e:");
+            console.log(e);
+        };
+        xhr.upload.addEventListener("progress", function(e) {
+            if (e.lengthComputable) {
+                var percentage = Math.round((e.loaded * 100) / e.total);
+                console.log("Uploaded: " + percentage);
+            }
+        }, false);
 
-		xhr.send(canvas.toDataURL('image/jpeg', 1.0));
+        xhr.send(canvas.toDataURL('image/jpeg', config.quality));
 
-		var resizedImage = document.createElement('img');
-		config.workspace.appendChild(resizedImage);
+        var resizedImage = document.createElement('img');
+        config.workspace.appendChild(resizedImage);
 
-		resizedImage.src = canvas.toDataURL('image/jpeg');
-		// config.workspace.removeChild(canvas);
+        resizedImage.src = canvas.toDataURL('image/jpeg', config.quality);
+        // config.workspace.removeChild(canvas);
 
-		if (config.debug) {
-			console.log('Finished at ' + new Date().getTime());
-			completionCallback();
-		}
+        if (config.debug) {
+            console.log('Finished at ' + new Date().getTime());
+            completionCallback();
+        }
 
-	};
+    };
 
-	privateApi.scaleCanvasWithAlgorithm = function(canvas) {
-		var scaledCanvas = document.createElement('canvas');
+    privateApi.scaleCanvasWithAlgorithm = function(canvas) {
+        var scaledCanvas = document.createElement('canvas');
 
-		var scale = config.maxWidth / canvas.width;
+        var scale = config.maxWidth / canvas.width;
 
-		scaledCanvas.width = canvas.width * scale;
-		scaledCanvas.height = canvas.height * scale;
-		// config.workspace.appendChild(scaledCanvas);
+        scaledCanvas.width = canvas.width * scale;
+        scaledCanvas.height = canvas.height * scale;
+        // config.workspace.appendChild(scaledCanvas);
 
-		var srcImgData = canvas.getContext('2d').getImageData(0, 0,
-				canvas.width, canvas.height);
-		var destImgData = scaledCanvas.getContext('2d').createImageData(
-				scaledCanvas.width, scaledCanvas.height);
+        var srcImgData = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
+        var destImgData = scaledCanvas.getContext('2d').createImageData(scaledCanvas.width, scaledCanvas.height);
 
-		privateApi.applyBilinearInterpolation(srcImgData, destImgData, scale);
+        privateApi.applyBilinearInterpolation(srcImgData, destImgData, scale);
 
-		scaledCanvas.getContext('2d').putImageData(destImgData, 0, 0);
+        scaledCanvas.getContext('2d').putImageData(destImgData, 0, 0);
 
-		return scaledCanvas;
-	};
+        return scaledCanvas;
+    };
 
-	privateApi.getHalfScaleCanvas = function(canvas) {
-		var halfCanvas = document.createElement('canvas');
-		halfCanvas.width = canvas.width / 2;
-		halfCanvas.height = canvas.height / 2;
+    privateApi.getHalfScaleCanvas = function(canvas) {
+        var halfCanvas = document.createElement('canvas');
+        halfCanvas.width = canvas.width / 2;
+        halfCanvas.height = canvas.height / 2;
 
-		halfCanvas.getContext('2d').drawImage(canvas, 0, 0, halfCanvas.width,
-				halfCanvas.height);
+        halfCanvas.getContext('2d').drawImage(canvas, 0, 0, halfCanvas.width, halfCanvas.height);
 
-		return halfCanvas;
-	};
+        return halfCanvas;
+    };
 
-	privateApi.setConfig = function(customConfig) {
-		if (customConfig) {
-			// Read in custom config variables
-			if (customConfig.inputElement) {
-				config.inputElement = customConfig.inputElement;
-			}
-			if (customConfig.container) {
-				config.container = customConfig.container;
-			}
-			if (customConfig.maxWidth) {
-				config.maxWidth = customConfig.maxWidth;
-			}
-			if (customConfig.onProgress) {
-			    config.onProgress = customConfig.onProgress;
-			}
-			if (customConfig.onComplete) {
-			    config.onComplete = customConfig.onComplete;
-			}
-		}
+    privateApi.setConfig = function(customConfig) {
+        // Read in custom config variables
+        config.inputElement = customConfig.inputElement;
+        config.container = customConfig.container;
+        config.maxWidth = customConfig.maxWidth;
+        config.quality = 1.00;
+        if (0.00 < customConfig.quality && customConfig.quality <= 1.00) {
+            config.quality = customConfig.quality;
+        }
+        config.onProgress = customConfig.onProgress;
+        config.onComplete = customConfig.onComplete;
 
-		if (!config.maxWidth) {
-			config.maxWidth = 1024;
-		}
+        if (!config.maxWidth) {
+            config.maxWidth = 1024;
+        }
 
-		// Create container if none set
-		if (!config.container) {
-			config.container = document.createElement('div');
-			// config.container.setAttribute('style', 'display: none');
-			document.body.appendChild(config.container);
-		}
+        // Create container if none set
+        if (!config.container) {
+            config.container = document.createElement('div');
+            // config.container.setAttribute('style', 'display: none');
+            document.body.appendChild(config.container);
+        }
 
-		config.workspace = document.createElement('div');
-		document.body.appendChild(config.workspace);
-	};
+        config.workspace = document.createElement('div');
+        document.body.appendChild(config.workspace);
+    };
 
-	// Modified from http://www.philou.ch/js-bilinear-interpolation.html
-	// Credit to Philippe Strauss
-	privateApi.applyBilinearInterpolation = function(srcCanvasData,
-			destCanvasData, scale) {
-		// c.f.: wikipedia english article on bilinear interpolation
-		// taking the unit square, the inner loop looks like this
-		function inner(f00, f10, f01, f11, x, y) {
-			var un_x = 1.0 - x;
-			var un_y = 1.0 - y;
-			return (f00 * un_x * un_y + f10 * x * un_y + f01 * un_x * y + f11
-					* x * y);
-		}
-		var i, j;
-		var iyv, iy0, iy1, ixv, ix0, ix1;
-		var idxD, idxS00, idxS10, idxS01, idxS11;
-		var dx, dy;
-		var r, g, b, a;
-		for (i = 0; i < destCanvasData.height; ++i) {
-			iyv = i / scale;
-			iy0 = Math.floor(iyv);
-			// Math.ceil can go over bounds
-			iy1 = (Math.ceil(iyv) > (srcCanvasData.height - 1) ? (srcCanvasData.height - 1)
-					: Math.ceil(iyv));
-			for (j = 0; j < destCanvasData.width; ++j) {
-				ixv = j / scale;
-				ix0 = Math.floor(ixv);
-				// Math.ceil can go over bounds
-				ix1 = (Math.ceil(ixv) > (srcCanvasData.width - 1) ? (srcCanvasData.width - 1)
-						: Math.ceil(ixv));
-				idxD = (j + destCanvasData.width * i) * 4;
-				// matrix to vector indices
-				idxS00 = (ix0 + srcCanvasData.width * iy0) * 4;
-				idxS10 = (ix1 + srcCanvasData.width * iy0) * 4;
-				idxS01 = (ix0 + srcCanvasData.width * iy1) * 4;
-				idxS11 = (ix1 + srcCanvasData.width * iy1) * 4;
-				// overall coordinates to unit square
-				dx = ixv - ix0;
-				dy = iyv - iy0;
-				// I let the r, g, b, a on purpose for debugging
-				r = inner(srcCanvasData.data[idxS00],
-						srcCanvasData.data[idxS10], srcCanvasData.data[idxS01],
-						srcCanvasData.data[idxS11], dx, dy);
-				destCanvasData.data[idxD] = r;
+    // Modified from http://www.philou.ch/js-bilinear-interpolation.html
+    // Credit to Philippe Strauss
+    privateApi.applyBilinearInterpolation = function(srcCanvasData, destCanvasData, scale) {
+        // c.f.: wikipedia english article on bilinear interpolation
+        // taking the unit square, the inner loop looks like this
+        function inner(f00, f10, f01, f11, x, y) {
+            var un_x = 1.0 - x;
+            var un_y = 1.0 - y;
+            return (f00 * un_x * un_y + f10 * x * un_y + f01 * un_x * y + f11 * x * y);
+        }
+        var i, j;
+        var iyv, iy0, iy1, ixv, ix0, ix1;
+        var idxD, idxS00, idxS10, idxS01, idxS11;
+        var dx, dy;
+        var r, g, b, a;
+        for (i = 0; i < destCanvasData.height; ++i) {
+            iyv = i / scale;
+            iy0 = Math.floor(iyv);
+            // Math.ceil can go over bounds
+            iy1 = (Math.ceil(iyv) > (srcCanvasData.height - 1) ? (srcCanvasData.height - 1) : Math.ceil(iyv));
+            for (j = 0; j < destCanvasData.width; ++j) {
+                ixv = j / scale;
+                ix0 = Math.floor(ixv);
+                // Math.ceil can go over bounds
+                ix1 = (Math.ceil(ixv) > (srcCanvasData.width - 1) ? (srcCanvasData.width - 1) : Math.ceil(ixv));
+                idxD = (j + destCanvasData.width * i) * 4;
+                // matrix to vector indices
+                idxS00 = (ix0 + srcCanvasData.width * iy0) * 4;
+                idxS10 = (ix1 + srcCanvasData.width * iy0) * 4;
+                idxS01 = (ix0 + srcCanvasData.width * iy1) * 4;
+                idxS11 = (ix1 + srcCanvasData.width * iy1) * 4;
+                // overall coordinates to unit square
+                dx = ixv - ix0;
+                dy = iyv - iy0;
+                // I let the r, g, b, a on purpose for debugging
+                r = inner(srcCanvasData.data[idxS00], srcCanvasData.data[idxS10], srcCanvasData.data[idxS01], srcCanvasData.data[idxS11], dx, dy);
+                destCanvasData.data[idxD] = r;
 
-				g = inner(srcCanvasData.data[idxS00 + 1],
-						srcCanvasData.data[idxS10 + 1],
-						srcCanvasData.data[idxS01 + 1],
-						srcCanvasData.data[idxS11 + 1], dx, dy);
-				destCanvasData.data[idxD + 1] = g;
+                g = inner(srcCanvasData.data[idxS00 + 1], srcCanvasData.data[idxS10 + 1], srcCanvasData.data[idxS01 + 1], srcCanvasData.data[idxS11 + 1], dx, dy);
+                destCanvasData.data[idxD + 1] = g;
 
-				b = inner(srcCanvasData.data[idxS00 + 2],
-						srcCanvasData.data[idxS10 + 2],
-						srcCanvasData.data[idxS01 + 2],
-						srcCanvasData.data[idxS11 + 2], dx, dy);
-				destCanvasData.data[idxD + 2] = b;
+                b = inner(srcCanvasData.data[idxS00 + 2], srcCanvasData.data[idxS10 + 2], srcCanvasData.data[idxS01 + 2], srcCanvasData.data[idxS11 + 2], dx, dy);
+                destCanvasData.data[idxD + 2] = b;
 
-				a = inner(srcCanvasData.data[idxS00 + 3],
-						srcCanvasData.data[idxS10 + 3],
-						srcCanvasData.data[idxS01 + 3],
-						srcCanvasData.data[idxS11 + 3], dx, dy);
-				destCanvasData.data[idxD + 3] = a;
-			}
-		}
-	};
+                a = inner(srcCanvasData.data[idxS00 + 3], srcCanvasData.data[idxS10 + 3], srcCanvasData.data[idxS01 + 3], srcCanvasData.data[idxS11 + 3], dx, dy);
+                destCanvasData.data[idxD + 3] = a;
+            }
+        }
+    };
 
-	return publicApi;
+    return publicApi;
 }());

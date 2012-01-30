@@ -53,7 +53,7 @@
 
 	<script type="text/javascript">
 	
-        var config = {
+		ImageUploader.init({
             inputElement : document.getElementById('fileInputElement'),
             onProgress : function(event) {
                 $('#progress').text('Completed '+event.done+' files of '+event.total+' total.');
@@ -63,10 +63,10 @@
                 $('#progress').text('Completed all '+event.done+' files!');
                 $('#progressbar').progressbar({ value: (event.done / event.total) * 100 })
             },
-            //maxWidth: 1024,
+            maxWidth: 1024,
+            quality: 0.90, 
             debug : true
-        }
-        ImageUploader.init(config);
+        });
     </script>
 </body>
 </html>
