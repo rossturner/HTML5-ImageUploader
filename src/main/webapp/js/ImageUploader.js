@@ -113,7 +113,7 @@ ImageUploader.prototype.scaleImage = function(img, completionCallback) {
     
     var imageData = canvas.toDataURL('image/jpeg', this.config.quality);
 
-    xhr.send(imageData);
+    xhr.send(imageData.split(',')[1]);
 
     var resizedImage = document.createElement('img');
     this.config.workspace.appendChild(resizedImage);
