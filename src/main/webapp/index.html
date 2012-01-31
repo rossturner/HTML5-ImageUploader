@@ -6,17 +6,30 @@
 <meta name="description"
 	content="Example of a pure HTML5 Image client resize and upload tool">
 <meta name="author" content="Ross Turner">
+<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=IE9">
 
 <!-- CSS -->
 <link rel="stylesheet" href="css/bootstrap.min.css">
 <link type="text/css" href="demo-only/css/start/jquery-ui-1.8.17.custom.css" rel="stylesheet" />	
 
 <!-- Javascript -->
+<script type="text/javascript" src="demo-only/js/CFInstall.min.js"></script>
 <script type="text/javascript" src="js/ImageUploader.js"></script>
 <script type="text/javascript" src="demo-only/js/jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="demo-only/js/jquery-ui-1.8.17.custom.min.js"></script>
 
 <body>
+	<script type="text/javascript">
+		// Chrome Frame for IE <= 9
+		if ($.browser.msie && $.browser.version < 10.0 ) {
+		    $(document).ready(function () {
+		        CFInstall.check({
+		            mode: "overlay"
+		        });
+			    $('#chromeFrameCloseButton').hide();
+		    });
+		}
+	</script>
 	<h2>HTML5 ImageUploader Example</h2>
 	<p>
 		<a href="api/image">Jersey resource</a>
@@ -42,6 +55,8 @@
 		<li>XMLHttpRequest2 for file upload with progress status</li>
 		<li>Check for required javascript APIs (XMLHttpRequest2 and
 			FileReader?) in current browser with optional callback for behaviour</li>
+		<li>Handle on error of XMLHttpRequest</li>
+		<li>Optional timeout in config to trigger on error</li>
 	</ul>
 
 	<h3>The ImageUploader in all its glory!</h3>
@@ -67,6 +82,7 @@
             quality: 0.90, 
             debug : true
         });
+		
     </script>
 </body>
 </html>

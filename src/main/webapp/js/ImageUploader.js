@@ -95,7 +95,6 @@ ImageUploader.prototype.scaleImage = function(img, completionCallback) {
 
     // config.workspace.appendChild(canvas);
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', 'api/image', true);
     xhr.onload = function(e) {
         if (This.config.debug) {
             console.log('Finished at ' + new Date().getTime());
@@ -106,8 +105,11 @@ ImageUploader.prototype.scaleImage = function(img, completionCallback) {
         if (e.lengthComputable) {
             var percentage = Math.round((e.loaded * 100) / e.total);
             console.log("Uploaded: " + percentage);
+        } else {
+            console.log('Uploaded: '+e.loaded);
         }
     }, false);
+    xhr.open('POST', 'api/image', true);
     
     var imageData = canvas.toDataURL('image/jpeg', this.config.quality);
 

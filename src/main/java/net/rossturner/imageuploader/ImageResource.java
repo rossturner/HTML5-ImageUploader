@@ -32,7 +32,8 @@ public class ImageResource {
 	}
 
 	@POST
-	public void handleImageUpload(final String imageString) throws IOException {
+    @Produces("text/plain")
+	public String handleImageUpload(final String imageString) throws IOException {
 		String base64data = imageString.substring("data:image/jpeg;base64,".length(), imageString.length());
 		
 		
@@ -46,6 +47,7 @@ public class ImageResource {
 		} finally {
 			osf.close();
 		}
+		return Integer.toString(imageString.length());
 	}
 
 }
