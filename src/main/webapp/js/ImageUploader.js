@@ -4,10 +4,7 @@
  * @author Ross Turner (https://github.com/zsinj)
  */
 var ImageUploader = function(config) {
-    if (!config 
-            || (!config.inputElement) 
-            || (!config.inputElement.getAttribute) 
-            || config.inputElement.getAttribute('type') !== 'file') {
+    if (!config || (!config.inputElement) || (!config.inputElement.getAttribute) || config.inputElement.getAttribute('type') !== 'file') {
         throw new Error('Config object passed to ImageUploader constructor must include "inputElement" set to be an element of type="file"');
     }
     this.setConfig(config);
@@ -21,7 +18,9 @@ var ImageUploader = function(config) {
         }
         This.progressObject = {
             total : parseInt(fileArray.length, 10),
-            done : 0
+            done : 0,
+            currentItemTotal : 0,
+            currentItemDone : 0
         };
         if (This.config.onProgress) {
             This.config.onProgress(This.progressObject);
@@ -32,25 +31,20 @@ var ImageUploader = function(config) {
     if (This.config.debug) {
         console.log('Initialised ImageUploader for ' + This.config.inputElement);
     }
-    
+
 };
 
-ImageUploader.prototype.handleFileList = function(fileArray, progressObject) {
+ImageUploader.prototype.handleFileList = function(fileArray) {
     var This = this;
     if (fileArray.length > 1) {
         var file = fileArray.shift();
         this.handleFileSelection(file, function() {
-            progressObject.done++;
-            if (This.config.onProgress) {
-                This.config.onProgress(progressObject);
-            }
-            This.handleFileList(fileArray, progressObject);
+            This.handleFileList(fileArray);
         });
     } else if (fileArray.length === 1) {
         this.handleFileSelection(fileArray[0], function() {
-            progressObject.done++;
             if (This.config.onComplete) {
-                This.config.onComplete(progressObject);
+                This.config.onComplete(This.progressObject);
             }
         });
     }
@@ -62,7 +56,6 @@ ImageUploader.prototype.handleFileSelection = function(file, completionCallback)
     }
 
     var img = document.createElement('img');
-    // config.workspace.appendChild(img);
     this.config.workspace.appendChild(document.createElement('br'));
     var reader = new FileReader();
     var This = this;
@@ -78,12 +71,10 @@ ImageUploader.prototype.handleFileSelection = function(file, completionCallback)
 };
 
 ImageUploader.prototype.scaleImage = function(img, completionCallback) {
-    var This = this;
     var canvas = document.createElement('canvas');
     canvas.width = img.width;
     canvas.height = img.height;
     canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-    // config.workspace.appendChild(canvas);
 
     while (canvas.width >= (2 * this.config.maxWidth)) {
         canvas = this.getHalfScaleCanvas(canvas);
@@ -93,33 +84,42 @@ ImageUploader.prototype.scaleImage = function(img, completionCallback) {
         canvas = this.scaleCanvasWithAlgorithm(canvas);
     }
 
-    // config.workspace.appendChild(canvas);
+    var imageData = canvas.toDataURL('image/jpeg', this.config.quality);
+    this.performUpload(imageData, completionCallback);
+};
+
+ImageUploader.prototype.performUpload = function(imageData, completionCallback) {
     var xhr = new XMLHttpRequest();
+    var This = this;
     xhr.onload = function(e) {
+        This.progressObject.done++;
+        This.progressUpdate(0, 0);
         if (This.config.debug) {
             console.log('Finished at ' + new Date().getTime());
         }
         completionCallback();
     };
     xhr.upload.addEventListener("progress", function(e) {
-        if (e.lengthComputable) {
-            var percentage = Math.round((e.loaded * 100) / e.total);
-            console.log("Uploaded: " + percentage);
-        } else {
-            console.log('Uploaded: '+e.loaded);
-        }
+        This.progressUpdate(e.loaded, e.total);
     }, false);
-    xhr.open('POST', 'api/image', true);
-    
-    var imageData = canvas.toDataURL('image/jpeg', this.config.quality);
+    xhr.open('POST', this.config.uploadUrl, true);
 
     xhr.send(imageData.split(',')[1]);
 
-    var resizedImage = document.createElement('img');
-    this.config.workspace.appendChild(resizedImage);
+    if (this.config.debug) {
+        var resizedImage = document.createElement('img');
+        this.config.workspace.appendChild(resizedImage);
 
-    resizedImage.src = imageData;
-    // config.workspace.removeChild(canvas);
+        resizedImage.src = imageData;
+    }
+};
+
+ImageUploader.prototype.progressUpdate = function(itemDone, itemTotal) {
+    this.progressObject.currentItemDone = itemDone;
+    this.progressObject.currentItemTotal = itemTotal;
+    if (this.config.onProgress) {
+        this.config.onProgress(this.progressObject);
+    }
 };
 
 ImageUploader.prototype.scaleCanvasWithAlgorithm = function(canvas) {
@@ -214,6 +214,7 @@ ImageUploader.prototype.setConfig = function(customConfig) {
     }
     this.config.onProgress = customConfig.onProgress;
     this.config.onComplete = customConfig.onComplete;
+    this.config.uploadUrl = customConfig.uploadUrl;
 
     if (!this.config.maxWidth) {
         this.config.maxWidth = 1024;

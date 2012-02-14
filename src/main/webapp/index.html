@@ -70,6 +70,7 @@
 	
 		var uploader = new ImageUploader({
             inputElement : document.getElementById('fileInputElement'),
+            uploadUrl : 'api/image',
             onProgress : function(event) {
                 $('#progress').text('Completed '+event.done+' files of '+event.total+' total.');
                 $('#progressbar').progressbar({ value: (event.done / event.total) * 100 })
