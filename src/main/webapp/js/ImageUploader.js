@@ -51,10 +51,6 @@ ImageUploader.prototype.handleFileList = function(fileArray) {
 };
 
 ImageUploader.prototype.handleFileSelection = function(file, completionCallback) {
-    if (this.config.debug) {
-        console.log(file.name + ' started at ' + new Date().getTime());
-    }
-
     var img = document.createElement('img');
     this.config.workspace.appendChild(document.createElement('br'));
     var reader = new FileReader();
@@ -94,9 +90,6 @@ ImageUploader.prototype.performUpload = function(imageData, completionCallback) 
     xhr.onload = function(e) {
         This.progressObject.done++;
         This.progressUpdate(0, 0);
-        if (This.config.debug) {
-            console.log('Finished at ' + new Date().getTime());
-        }
         completionCallback();
     };
     xhr.upload.addEventListener("progress", function(e) {
@@ -129,7 +122,6 @@ ImageUploader.prototype.scaleCanvasWithAlgorithm = function(canvas) {
 
     scaledCanvas.width = canvas.width * scale;
     scaledCanvas.height = canvas.height * scale;
-    // config.workspace.appendChild(scaledCanvas);
 
     var srcImgData = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
     var destImgData = scaledCanvas.getContext('2d').createImageData(scaledCanvas.width, scaledCanvas.height);
@@ -151,11 +143,7 @@ ImageUploader.prototype.getHalfScaleCanvas = function(canvas) {
     return halfCanvas;
 };
 
-// Modified from http://www.philou.ch/js-bilinear-interpolation.html
-// Credit to Philippe Strauss
 ImageUploader.prototype.applyBilinearInterpolation = function(srcCanvasData, destCanvasData, scale) {
-    // c.f.: wikipedia english article on bilinear interpolation
-    // taking the unit square, the inner loop looks like this
     function inner(f00, f10, f01, f11, x, y) {
         var un_x = 1.0 - x;
         var un_y = 1.0 - y;
