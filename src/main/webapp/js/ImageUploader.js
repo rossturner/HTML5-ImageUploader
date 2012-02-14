@@ -53,7 +53,6 @@ ImageUploader.prototype.handleFileList = function(fileArray) {
 ImageUploader.prototype.handleFileSelection = function(file, completionCallback) {
     var img = document.createElement('img');
     this.currentFile = file;
-    this.config.workspace.appendChild(document.createElement('br'));
     var reader = new FileReader();
     var This = this;
     reader.onload = function(e) {
@@ -111,10 +110,11 @@ ImageUploader.prototype.performUpload = function(imageData, completionCallback) 
                 }, completionCallback);
             }
         }, this.config.timeout);
-    };
+    }
     
     if (this.config.debug) {
         var resizedImage = document.createElement('img');
+        this.config.workspace.appendChild(document.createElement('br'));
         this.config.workspace.appendChild(resizedImage);
 
         resizedImage.src = imageData;
@@ -218,7 +218,6 @@ ImageUploader.prototype.setConfig = function(customConfig) {
     this.config = {};
     this.config.debug = customConfig.debug || false;
     this.config.inputElement = customConfig.inputElement;
-    this.config.container = customConfig.container;
     this.config.maxWidth = customConfig.maxWidth;
     this.config.quality = 1.00;
     if (0.00 < customConfig.quality && customConfig.quality <= 1.00) {
@@ -237,12 +236,9 @@ ImageUploader.prototype.setConfig = function(customConfig) {
     }
 
     // Create container if none set
-    if (!this.config.container) {
-        this.config.container = document.createElement('div');
-        // config.container.setAttribute('style', 'display: none');
-        document.body.appendChild(this.config.container);
+    this.config.workspace = customConfig.workspace;
+    if (!this.config.workspace) {
+        this.config.workspace = document.createElement('div');
+        document.body.appendChild(this.config.workspace);
     }
-
-    this.config.workspace = document.createElement('div');
-    document.body.appendChild(this.config.workspace);
 };
