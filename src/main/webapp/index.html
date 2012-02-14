@@ -64,6 +64,7 @@
 	<input id="fileInputElement" type="file" multiple />
 
 	<div id="progress"></div>
+	<div id="fileProgress"></div>
 	<div id="progressbar"></div>
 
 	<script type="text/javascript">
@@ -75,12 +76,16 @@
                 $('#progress').text('Completed '+event.done+' files of '+event.total+' total.');
                 $('#progressbar').progressbar({ value: (event.done / event.total) * 100 })
             },
-//             onComplete : function(event) {
-//                 $('#progress').text('Completed all '+event.done+' files!');
-//                 $('#progressbar').progressbar({ value: (event.done / event.total) * 100 })
-//             },
+            onFileComplete : function(event, file) {
+            	$('#fileProgress').append('Finished file '+file.fileName+' with response from server '+event.target.status+'<br />');    
+            },
+            onComplete : function(event) {
+                $('#progress').text('Completed all '+event.done+' files!');
+                $('#progressbar').progressbar({ value: (event.done / event.total) * 100 })
+            },
             maxWidth: 1024,
             quality: 0.90, 
+            //timeout: 5000,
             debug : true
         });
 		

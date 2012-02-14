@@ -52,6 +52,7 @@ ImageUploader.prototype.handleFileList = function(fileArray) {
 
 ImageUploader.prototype.handleFileSelection = function(file, completionCallback) {
     var img = document.createElement('img');
+    this.currentFile = file;
     this.config.workspace.appendChild(document.createElement('br'));
     var reader = new FileReader();
     var This = this;
@@ -87,18 +88,31 @@ ImageUploader.prototype.scaleImage = function(img, completionCallback) {
 ImageUploader.prototype.performUpload = function(imageData, completionCallback) {
     var xhr = new XMLHttpRequest();
     var This = this;
+    var uploadInProgress = true;
     xhr.onload = function(e) {
-        This.progressObject.done++;
-        This.progressUpdate(0, 0);
-        completionCallback();
+        uploadInProgress = false;
+        This.uploadComplete(e, completionCallback);
     };
     xhr.upload.addEventListener("progress", function(e) {
         This.progressUpdate(e.loaded, e.total);
     }, false);
     xhr.open('POST', this.config.uploadUrl, true);
-
+    
     xhr.send(imageData.split(',')[1]);
 
+    if (this.config.timeout) {
+        setTimeout(function() {
+            if (uploadInProgress) {
+                xhr.abort();
+                This.uploadComplete({
+                    target: {
+                        status: 'Timed out' 
+                    }
+                }, completionCallback);
+            }
+        }, this.config.timeout);
+    };
+    
     if (this.config.debug) {
         var resizedImage = document.createElement('img');
         this.config.workspace.appendChild(resizedImage);
@@ -107,7 +121,17 @@ ImageUploader.prototype.performUpload = function(imageData, completionCallback) 
     }
 };
 
+ImageUploader.prototype.uploadComplete = function(event, completionCallback) {
+    this.progressObject.done++;
+    this.progressUpdate(0, 0);
+    completionCallback();
+    if (this.config.onFileComplete) {
+        this.config.onFileComplete(event, this.currentFile);
+    }
+};
+
 ImageUploader.prototype.progressUpdate = function(itemDone, itemTotal) {
+    console.log('Uploaded '+itemDone+' of '+itemTotal);
     this.progressObject.currentItemDone = itemDone;
     this.progressObject.currentItemTotal = itemTotal;
     if (this.config.onProgress) {
@@ -201,8 +225,12 @@ ImageUploader.prototype.setConfig = function(customConfig) {
         this.config.quality = customConfig.quality;
     }
     this.config.onProgress = customConfig.onProgress;
+    this.config.onFileComplete = customConfig.onFileComplete;
     this.config.onComplete = customConfig.onComplete;
     this.config.uploadUrl = customConfig.uploadUrl;
+    if (customConfig.timeout) {
+        this.config.timeout = parseInt(customConfig.timeout, 10);
+    }
 
     if (!this.config.maxWidth) {
         this.config.maxWidth = 1024;

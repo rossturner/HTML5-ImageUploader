@@ -33,7 +33,7 @@ public class ImageResource {
 
 	@POST
     @Produces("text/plain")
-	public String handleImageUpload(final String base64data) throws IOException {		
+	public String handleImageUpload(final String base64data) throws IOException {
 		counter++;
 		File of = new File("target/image"+counter+".jpg");
 		FileOutputStream osf = new FileOutputStream(of);
