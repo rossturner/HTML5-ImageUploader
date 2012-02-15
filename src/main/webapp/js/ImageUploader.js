@@ -214,29 +214,17 @@ ImageUploader.prototype.applyBilinearInterpolation = function(srcCanvasData, des
 };
 
 ImageUploader.prototype.setConfig = function(customConfig) {
-    // Read in custom config variables
-    this.config = {};
-    this.config.debug = customConfig.debug || false;
-    this.config.inputElement = customConfig.inputElement;
-    this.config.maxWidth = customConfig.maxWidth;
+    this.config = customConfig;
+    this.config.debug = this.config.debug || false;
     this.config.quality = 1.00;
     if (0.00 < customConfig.quality && customConfig.quality <= 1.00) {
         this.config.quality = customConfig.quality;
     }
-    this.config.onProgress = customConfig.onProgress;
-    this.config.onFileComplete = customConfig.onFileComplete;
-    this.config.onComplete = customConfig.onComplete;
-    this.config.uploadUrl = customConfig.uploadUrl;
-    if (customConfig.timeout) {
-        this.config.timeout = parseInt(customConfig.timeout, 10);
-    }
-
     if (!this.config.maxWidth) {
         this.config.maxWidth = 1024;
     }
 
     // Create container if none set
-    this.config.workspace = customConfig.workspace;
     if (!this.config.workspace) {
         this.config.workspace = document.createElement('div');
         document.body.appendChild(this.config.workspace);

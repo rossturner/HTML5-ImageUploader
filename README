@@ -14,7 +14,7 @@ Where config must contain the following properties:
 
 'inputElement' - A file-type input element
 
-'uploadUrl' - The remote URL to POST uploaded images to
+'uploadUrl' - The URL to POST uploaded images to
 
 And may contain the following optional properties:
 
@@ -34,7 +34,7 @@ done - The number of images uploaded so far
 currentItemTotal - The number of bytes to be uploaded for the currently uploading image
 currentItemDone - The total number of bytes to upload for the current image
 
-'onFileComplete' - A function invoked on completion of uploading each selected image which passed two arguments, the first is the event object from the XmlHttpRequest, and the second if the corresponding File object from the input element
+'onFileComplete' - A function invoked on completion of uploading each selected image which is passed two arguments, the first is the event object from the XmlHttpRequest, and the second if the corresponding File object from the input element
 
 'onComplete' - A function invoked on completion of all images being uploaded (passed no arguments)
 
