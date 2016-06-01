@@ -88,6 +88,7 @@ ImageUploader.prototype.performUpload = function(imageData, completionCallback) 
     var xhr = new XMLHttpRequest();
     var This = this;
     var uploadInProgress = true;
+    var headers = this.config.requestHeaders;
     xhr.onload = function(e) {
         uploadInProgress = false;
         This.uploadComplete(e, completionCallback);
@@ -96,6 +97,19 @@ ImageUploader.prototype.performUpload = function(imageData, completionCallback) 
         This.progressUpdate(e.loaded, e.total);
     }, false);
     xhr.open('POST', this.config.uploadUrl, true);
+    
+    if(typeof headers === 'object' && headers !== null) {
+        Object.keys(headers).forEach(function(key,index) {
+            if(typeof headers[key] !== 'string') {
+                var headersArray = headers[key];
+                for(var i = 0, j = headersArray.length; i < j; i++) {
+                    xhr.setRequestHeader(key, headersArray[i]);
+                }   
+            } else {
+                xhr.setRequestHeader(key, headers[key]);                
+            }
+        });
+    }
     
     xhr.send(imageData.split(',')[1]);
 
