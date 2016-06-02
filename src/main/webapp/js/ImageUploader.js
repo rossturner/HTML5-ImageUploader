@@ -92,6 +92,7 @@ ImageUploader.prototype.performUpload = function(imageData, completionCallback) 
     xhr.onload = function(e) {
         uploadInProgress = false;
         This.uploadComplete(e, completionCallback);
+      document.getElementById("img").innerHTML = xhr.responseText;
     };
     xhr.upload.addEventListener("progress", function(e) {
         This.progressUpdate(e.loaded, e.total);

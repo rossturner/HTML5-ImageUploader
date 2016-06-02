@@ -19,6 +19,8 @@
 <script type="text/javascript" src="demo-only/js/jquery-ui-1.8.17.custom.min.js"></script>
 
 <body>
+<div id="img">
+</div>
 	<script type="text/javascript">
 		// Chrome Frame for IE <= 9
 		if ($.browser.msie && $.browser.version < 10.0 ) {
@@ -71,7 +73,7 @@
 	
 		var uploader = new ImageUploader({
             inputElement : document.getElementById('fileInputElement'),
-            uploadUrl : 'api/image',
+            uploadUrl : 'api/image/response.php',
             onProgress : function(event) {
                 $('#progress').text('Completed '+event.done+' files of '+event.total+' total.');
                 $('#progressbar').progressbar({ value: (event.done / event.total) * 100 })
