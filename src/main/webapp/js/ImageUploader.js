@@ -91,13 +91,24 @@ ImageUploader.prototype.performUpload = function(imageData, completionCallback) 
     var headers = this.config.requestHeaders;
     xhr.onload = function(e) {
         uploadInProgress = false;
-        This.uploadComplete(e, completionCallback);
-      document.getElementById("img").innerHTML = xhr.responseText;
+        This.uploadComplete(e, completionCallback);        
+        
+        div = document.getElementById("img");
+        var el = document.createElement('div');
+        div.appendChild(el);
+        el.innerHTML = xhr.responseText;
+        el.className = "container__preview";         
+     // console.log(xhr.responseText);
+        
+      
+      
     };
     xhr.upload.addEventListener("progress", function(e) {
         This.progressUpdate(e.loaded, e.total);
     }, false);
+    
     xhr.open('POST', this.config.uploadUrl, true);
+    xhr.setRequestHeader('Content-type','application/x-www-form-urlencoded');  
     
     if(typeof headers === 'object' && headers !== null) {
         Object.keys(headers).forEach(function(key,index) {
@@ -111,8 +122,9 @@ ImageUploader.prototype.performUpload = function(imageData, completionCallback) 
             }
         });
     }
-    
-    xhr.send(imageData.split(',')[1]);
+      
+    xhr.send(this.config.inputElement.files[this.config.length].name+"||||"+imageData);    
+    this.config.length++;
 
     if (this.config.timeout) {
         setTimeout(function() {
@@ -128,9 +140,9 @@ ImageUploader.prototype.performUpload = function(imageData, completionCallback) 
     }
     
     if (this.config.debug) {
-        var resizedImage = document.createElement('img');
-        this.config.workspace.appendChild(document.createElement('br'));
+        var resizedImage = document.createElement('img');        
         this.config.workspace.appendChild(resizedImage);
+        this.config.workspace.className = "preview";
 
         resizedImage.src = imageData;
     }
@@ -236,12 +248,13 @@ ImageUploader.prototype.setConfig = function(customConfig) {
         this.config.quality = customConfig.quality;
     }
     if (!this.config.maxWidth) {
-        this.config.maxWidth = 1024;
+        this.config.maxWidth = 800;
     }
 
     // Create container if none set
     if (!this.config.workspace) {
         this.config.workspace = document.createElement('div');
         document.body.appendChild(this.config.workspace);
+        
     }
 };
