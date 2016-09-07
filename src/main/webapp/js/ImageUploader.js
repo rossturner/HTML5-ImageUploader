@@ -58,9 +58,9 @@ ImageUploader.prototype.handleFileSelection = function(file, completionCallback)
     reader.onload = function(e) {
         img.src = e.target.result;
 
-        setTimeout(function() {
+        img.onload = function(){
             This.scaleImage(img, completionCallback);
-        }, 1);
+        }
 
     };
     reader.readAsDataURL(file);
