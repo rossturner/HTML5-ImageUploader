@@ -59,18 +59,113 @@ ImageUploader.prototype.handleFileSelection = function(file, completionCallback)
         img.src = e.target.result;
 
         img.onload = function(){
-            This.scaleImage(img, completionCallback);
+			//Rotate image first if required
+			if (This.config.autoRotate){
+				if (This.config.debug)
+					console.log('ImageUploader: detecting image orientation...');
+				if ( (typeof EXIF.getData === "function") && (typeof EXIF.getTag === "function") ) {
+					EXIF.getData(img, function() {
+						var orientation = EXIF.getTag(this, "Orientation");
+						if (This.config.debug) {
+							console.log('ImageUploader: image orientation from EXIF tag = ' + orientation);
+						}
+						This.scaleImage(img, completionCallback, orientation);
+					});
+				}
+				else{
+					console.error("ImageUploader: can't read EXIF data, the Exif.js library not found");
+					This.scaleImage(img, completionCallback);
+				}
+			}
         }
-
     };
     reader.readAsDataURL(file);
 };
 
-ImageUploader.prototype.scaleImage = function(img, completionCallback) {
+ImageUploader.prototype.drawImage = function(context, img, x, y, width, height, deg, flip, flop, center) {
+	context.save();
+
+	if(typeof width === "undefined") width = img.width;
+	if(typeof height === "undefined") height = img.height;
+	if(typeof center === "undefined") center = false;
+
+	// Set rotation point to center of image, instead of top/left
+	if(center) {
+		x -= width/2;
+		y -= height/2;
+	}
+
+	// Set the origin to the center of the image
+	context.translate(x + width/2, y + height/2);
+
+	// Rotate the canvas around the origin
+	var rad = 2 * Math.PI - deg * Math.PI / 180;    
+	context.rotate(rad);
+
+	// Flip/flop the canvas
+	if(flip) flipScale = -1; else flipScale = 1;
+	if(flop) flopScale = -1; else flopScale = 1;
+	context.scale(flipScale, flopScale);
+
+	// Draw the image    
+	context.drawImage(img, -width/2, -height/2, width, height);
+
+	context.restore();
+}
+
+ImageUploader.prototype.scaleImage = function(img, completionCallback, orientation = 1) {
     var canvas = document.createElement('canvas');
-    canvas.width = img.width;
-    canvas.height = img.height;
-    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+	canvas.width = img.width;
+	canvas.height = img.height;
+	var ctx = canvas.getContext('2d');	
+	ctx.save();
+	
+	//Good explanation of EXIF orientation is here http://www.daveperrett.com/articles/2012/07/28/exif-orientation-handling-is-a-ghetto/
+	var width  = canvas.width;
+	var styleWidth  = canvas.style.width;
+    var height = canvas.height;
+	var styleHeight = canvas.style.height;
+    if (orientation) {
+		if (orientation > 4) {
+			canvas.width  = height;
+			canvas.style.width  = styleHeight;
+			canvas.height = width;
+			canvas.style.height = styleWidth;
+		}
+		switch (orientation) {
+			case 2: 
+				ctx.translate(width, 0);
+				ctx.scale(-1,1);
+				break;
+			case 3: 
+				ctx.translate(width,height);
+				ctx.rotate(Math.PI);
+				break;
+			case 4:
+				ctx.translate(0,height);
+				ctx.scale(1,-1);
+				break;
+			case 5:
+				ctx.rotate(0.5 * Math.PI);
+				ctx.scale(1,-1);
+				break;
+			case 6:
+				ctx.rotate(0.5 * Math.PI);
+				ctx.translate(0,-height);
+				break;
+			case 7: 
+				ctx.rotate(0.5 * Math.PI);
+				ctx.translate(width,-height);
+				ctx.scale(-1,1);
+				break;
+			case 8:
+				ctx.rotate(-0.5 * Math.PI);
+				ctx.translate(-width,0);
+				break;
+		}
+	}
+	ctx.drawImage(img, 0, 0);
+	ctx.restore();
 
     while (canvas.width >= (2 * this.config.maxWidth)) {
         canvas = this.getHalfScaleCanvas(canvas);
@@ -237,6 +332,9 @@ ImageUploader.prototype.setConfig = function(customConfig) {
     if (!this.config.maxWidth) {
         this.config.maxWidth = 1024;
     }
+	this.config.autoRotate = true;
+	if (typeof customConfig.autoRotate === 'boolean')
+		this.config.autoRotate = customConfig.autoRotate;
 
     // Create container if none set
     if (!this.config.workspace) {
