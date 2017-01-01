@@ -191,6 +191,8 @@ ImageUploader.prototype.scaleImage = function(img, completionCallback, orientati
     }
 
     var imageData = canvas.toDataURL('image/jpeg', this.config.quality);
+	if (typeof this.config.onScale === 'function')
+		this.config.onScale(imageData);
     this.performUpload(imageData, completionCallback);
 };
 

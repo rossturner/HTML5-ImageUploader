@@ -39,9 +39,10 @@ These properties are used as conditions when the image should be scaled down pro
 
 #### Debug properties ####
 - **debug** - A boolean flag to show the images in a <div> on the containing page before upload. Default value: false.
-- **workspace** - An element within which images are appended before upload (when **debug** is set to true)
+- **workspace** - An element within which images are appended before upload (when **debug** is set to true). If not specified, then a new <div> tag will be appended to the end of HTML body where the images will be rendered.
 
 #### Callback properties ####
+- **onScale** - A function which is invoked when final image is generated right before the upload starts. 1 argument passed: image data in data URL format. This callback function is useful for displaying a thumbnail (preview) of the selected image with correct orientation (the autoRotate option should be set to true).
 - **onProgress** - A function which is invoked on upload progress, with a single argument of an object containing the following:
 
  - **total** - The total number of images selected for upload
