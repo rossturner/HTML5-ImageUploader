@@ -22,7 +22,7 @@ var ImageUploader = function(config) {
             currentItemTotal : 0,
             currentItemDone : 0
         };
-        if (This.config.onProgress) {
+        if (typeof This.config.onProgress === 'function') {
             This.config.onProgress(This.progressObject);
         }
         This.handleFileList(fileArray, This.progressObject);
@@ -43,7 +43,7 @@ ImageUploader.prototype.handleFileList = function(fileArray) {
         });
     } else if (fileArray.length === 1) {
         this.handleFileSelection(fileArray[0], function() {
-            if (This.config.onComplete) {
+            if (typeof This.config.onComplete === 'function') {
                 This.config.onComplete(This.progressObject);
             }
         });
@@ -249,7 +249,7 @@ ImageUploader.prototype.uploadComplete = function(event, completionCallback) {
     this.progressObject.done++;
     this.progressUpdate(0, 0);
     completionCallback();
-    if (this.config.onFileComplete) {
+    if (typeof this.config.onFileComplete === 'function') {
         this.config.onFileComplete(event, this.currentFile);
     }
 };
