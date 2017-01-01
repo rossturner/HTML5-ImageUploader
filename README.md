@@ -17,26 +17,31 @@ Create a new ImageUploader, passing in a javascript object hash of config, e.g.
 var uploader = new ImageUploader(config);
 ```
 
-Where **config** must contain the following properties:
+Where **config** contains the following properties:
+
+### Obligatory properties ###
 
 - **inputElement** - A file-type input element
-
 - **uploadUrl** - The URL to POST uploaded images to
 
-And may contain the following optional properties:
+### Optional properties ###
+#### Size restriction properties ####
+These properties are used as conditions when the image should be scaled down proportionally before upload. If several properties are applied, then the image will be scaled down to the maximum available size that will fit all the conditions.
 
-- **maxWidth** - An integer in pixels for the maximum width allowed for uploaded images, selected images with a greater width than this value will be scaled down before upload.
+- **maxWidth** - An integer in pixels for the maximum width allowed for uploaded images, selected images with a greater width than this value will be scaled down before upload. Default value: 1024.
+- **maxHeight** - An integer in pixels for the maximum height allowed for uploaded images, selected images with a greater height than this value will be scaled down before upload. Default value: 1024.
+- **maxSize** - A float value in megapixels (MP) for the maximum overall size of the image allowed for uploaded images, selected images with a greater size than this value will be scaled down before upload. The size of the image is calculated by the formula `size = width * height / 1000`, where `width` and `height` are the dimensions of the image in pixels. If the value is null or is not specified, then maximum size restriction is not applied. Default value: null. For websites it's good to set this value around 1.7: for landscape images taken by standard photo cameras (Canon, Nikon, etc.), this value will lead to scaling down the original photo to size about 1600 x 1000 px, which is sufficient for displaying the scaled image on large screen monitors.  
 
-- **quality** - A float between 0 and 1.00 for the image quality to use in the resulting image data, around 0.9 is recommended.
-
+#### Other properties ####
+- **quality** - A float between 0 and 1.00 for the image quality to use in the resulting image data, around 0.9 is recommended. Default value: 1.0.
 - **autoRotate** - A boolean flag, if true then EXIF information from the image is parsed and the image is rotated correctly before upload. If false, then no processing is performed, and unwanted image flipping can happen. This flag is useful for JPEG images that were taken on a camera or mobile phone (like iPhone) that can save the image with arbitrary orientation and specifies the correct orientation in the EXIF tag. This tag should be parsed and related rotation should be applied for correct visualization of the image. Examples of such images you can find in the `images/exif` folder. Recommended and default value: true.
-
 - **timeout** - A number in milliseconds specifying the maximum time to wait for file uploads to finish, after which they will be aborted.
 
-- **debug** - A boolean flag to show the images in a <div> on the containing page before upload.
-
+#### Debug properties ####
+- **debug** - A boolean flag to show the images in a <div> on the containing page before upload. Default value: false.
 - **workspace** - An element within which images are appended before upload (when **debug** is set to true)
 
+#### Callback properties ####
 - **onProgress** - A function which is invoked on upload progress, with a single argument of an object containing the following:
 
  - **total** - The total number of images selected for upload
@@ -45,14 +50,13 @@ And may contain the following optional properties:
  - **currentItemDone** - The total number of bytes to upload for the current image
 
 - **onFileComplete** - A function invoked on completion of uploading each selected image which is passed two arguments, the first is the event object from the XmlHttpRequest, and the second if the corresponding File object from the input element
-
 - **onComplete** - A function invoked on completion of all images being uploaded (passed no arguments)
 
 ## Example ##
 Below is an example of using the ImageUploader.js for uploading images on HTML page and further processing of the images at the server.
   
 ### HTML ###
-In our example we have a page with 3 input elements for selecting files that will be uploaded. When user selects a file, it will start to upload automatically.
+In our example we have a page with 3 input elements for selecting files that will be uploaded. When user selects a file, it will start to upload automatically. The user can select 1 file per input element.
  
 We will use the following additional libraries (they are not required by the ImageUploader.js, but we will use them to make our example look pretty):
 
@@ -129,6 +133,7 @@ Notes:
 
 - In the code above we use `accept="image/jpeg,image/jpg"` to limit the file types that user can select. This approach works with all modern HTML5 browsers (desktop and mobile). But keep in mind, that the user can bypass this limitation and select arbitrary file. We will do some additional validation of file extension in the JavaScript code below.
 - The input tag contains additional attributes such as `data-id` and `data-product`. We use them to show how you can add extra information to your input data and then pass it to the server. It can be useful when the HTML page is generated dynamically by the server (for example, using PHP, Perl or some other script).
+- We add class `image-upload` to the input elements in order to mark out those, that should be processed with ImageUploader.js. Such approach allows to have different input elements in HTML page without conflicts.
 
 ### JavaScript ###
 Below is the code of custom.js, which contains code for managing the HTML page (comments are in the code):

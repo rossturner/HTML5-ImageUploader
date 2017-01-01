@@ -167,12 +167,27 @@ ImageUploader.prototype.scaleImage = function(img, completionCallback, orientati
 	ctx.drawImage(img, 0, 0);
 	ctx.restore();
 
-    while (canvas.width >= (2 * this.config.maxWidth)) {
+	//Let's find the max available width for scaled image
+	var ratio = canvas.width/canvas.height;
+	var mWidth = Math.min(this.config.maxWidth, ratio*this.config.maxHeight);
+	if ( (this.config.maxSize>0) && (this.config.maxSize<canvas.width*canvas.height/1000) )
+		mWidth = Math.min(mWidth, Math.floor(Math.sqrt(this.config.maxSize*ratio)));
+	
+	if (this.config.debug){
+		console.log('ImageUploader: original image size = ' + canvas.width + ' px (width) X ' + canvas.height + ' px (height)');
+		console.log('ImageUploader: scaled image size = ' + mWidth + ' px (width) X ' + Math.floor(mWidth/ratio) + ' px (height)');
+	}
+	if (mWidth<=0){
+		mWidth = 1;
+		console.warning('ImageUploader: image size is too small');
+	}
+	
+    while (canvas.width >= (2 * mWidth)) {
         canvas = this.getHalfScaleCanvas(canvas);
     }
 
-    if (canvas.width > this.config.maxWidth) {
-        canvas = this.scaleCanvasWithAlgorithm(canvas);
+    if (canvas.width > mWidth) {
+        canvas = this.scaleCanvasWithAlgorithm(canvas, mWidth);
     }
 
     var imageData = canvas.toDataURL('image/jpeg', this.config.quality);
@@ -248,10 +263,10 @@ ImageUploader.prototype.progressUpdate = function(itemDone, itemTotal) {
     }
 };
 
-ImageUploader.prototype.scaleCanvasWithAlgorithm = function(canvas) {
+ImageUploader.prototype.scaleCanvasWithAlgorithm = function(canvas, maxWidth) {
     var scaledCanvas = document.createElement('canvas');
 
-    var scale = this.config.maxWidth / canvas.width;
+    var scale = maxWidth / canvas.width;
 
     scaledCanvas.width = canvas.width * scale;
     scaledCanvas.height = canvas.height * scale;
@@ -329,9 +344,15 @@ ImageUploader.prototype.setConfig = function(customConfig) {
     if (0.00 < customConfig.quality && customConfig.quality <= 1.00) {
         this.config.quality = customConfig.quality;
     }
-    if (!this.config.maxWidth) {
+    if ( (!this.config.maxWidth) || (this.config.maxWidth<0) ){
         this.config.maxWidth = 1024;
     }
+	if ( (!this.config.maxHeight) || (this.config.maxHeight<0) ) {
+        this.config.maxHeight = 1024;
+    }
+	if ( (!this.config.maxSize) || (this.config.maxSize<0) ) {
+		this.config.maxSize = null;
+	}
 	this.config.autoRotate = true;
 	if (typeof customConfig.autoRotate === 'boolean')
 		this.config.autoRotate = customConfig.autoRotate;
