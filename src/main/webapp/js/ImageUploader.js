@@ -172,6 +172,8 @@ ImageUploader.prototype.scaleImage = function(img, completionCallback, orientati
 	var mWidth = Math.min(this.config.maxWidth, ratio*this.config.maxHeight);
 	if ( (this.config.maxSize>0) && (this.config.maxSize<canvas.width*canvas.height/1000) )
 		mWidth = Math.min(mWidth, Math.floor(Math.sqrt(this.config.maxSize*ratio)));
+	if ( !!this.config.scaleRatio )
+		mWidth = Math.min(mWidth, Math.floor(this.config.scaleRatio*canvas.width));
 	
 	if (this.config.debug){
 		console.log('ImageUploader: original image size = ' + canvas.width + ' px (width) X ' + canvas.height + ' px (height)');
@@ -354,6 +356,9 @@ ImageUploader.prototype.setConfig = function(customConfig) {
     }
 	if ( (!this.config.maxSize) || (this.config.maxSize<0) ) {
 		this.config.maxSize = null;
+	}
+	if ( (!this.config.scaleRatio) || (this.config.scaleRatio <= 0) || (this.config.scaleRatio >= 1) ) {
+		this.config.scaleRatio = null;
 	}
 	this.config.autoRotate = true;
 	if (typeof customConfig.autoRotate === 'boolean')
