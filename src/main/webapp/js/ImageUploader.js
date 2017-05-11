@@ -113,7 +113,7 @@ ImageUploader.prototype.drawImage = function(context, img, x, y, width, height, 
 	context.restore();
 }
 
-ImageUploader.prototype.scaleImage = function(img, completionCallback, orientation = 1) {
+ImageUploader.prototype.scaleImage = function(img, completionCallback, orientation) {
     var canvas = document.createElement('canvas');
 	canvas.width = img.width;
 	canvas.height = img.height;
@@ -125,6 +125,8 @@ ImageUploader.prototype.scaleImage = function(img, completionCallback, orientati
 	var styleWidth  = canvas.style.width;
     var height = canvas.height;
 	var styleHeight = canvas.style.height;
+	if (typeof orientation === 'undefined')
+        orientation = 1;
     if (orientation) {
 		if (orientation > 4) {
 			canvas.width  = height;
