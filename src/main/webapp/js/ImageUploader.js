@@ -111,7 +111,7 @@ ImageUploader.prototype.drawImage = function(context, img, x, y, width, height, 
 	context.drawImage(img, -width/2, -height/2, width, height);
 
 	context.restore();
-}
+};
 
 ImageUploader.prototype.scaleImage = function(img, completionCallback, orientation) {
     var canvas = document.createElement('canvas');
@@ -183,7 +183,7 @@ ImageUploader.prototype.scaleImage = function(img, completionCallback, orientati
 	}
 	if (mWidth<=0){
 		mWidth = 1;
-		console.warning('ImageUploader: image size is too small');
+		console.warn('ImageUploader: image size is too small');
 	}
 	
     while (canvas.width >= (2 * mWidth)) {
