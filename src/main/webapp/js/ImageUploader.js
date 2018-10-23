@@ -77,6 +77,10 @@ ImageUploader.prototype.handleFileSelection = function(file, completionCallback)
 					This.scaleImage(img, completionCallback);
 				}
 			}
+			else{
+			    //No rotation, just scale the image
+                This.scaleImage(img, completionCallback);
+            }
         }
     };
     reader.readAsDataURL(file);
@@ -172,8 +176,8 @@ ImageUploader.prototype.scaleImage = function(img, completionCallback, orientati
 	//Let's find the max available width for scaled image
 	var ratio = canvas.width/canvas.height;
 	var mWidth = Math.min(this.config.maxWidth, ratio*this.config.maxHeight);
-	if ( (this.config.maxSize>0) && (this.config.maxSize<canvas.width*canvas.height/1000) )
-		mWidth = Math.min(mWidth, Math.floor(Math.sqrt(this.config.maxSize*ratio)));
+	if ( (this.config.maxSize>0) && (this.config.maxSize<canvas.width*canvas.height/1000000) )
+		mWidth = Math.min(mWidth, Math.floor(Math.sqrt(this.config.maxSize*ratio)*1000));
 	if ( !!this.config.scaleRatio )
 		mWidth = Math.min(mWidth, Math.floor(this.config.scaleRatio*canvas.width));
 	
