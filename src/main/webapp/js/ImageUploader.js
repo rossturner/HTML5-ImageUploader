@@ -1,7 +1,7 @@
 /**
  * ImageUploader.js - a client-side image resize and upload javascript module
  * 
- * @author Ross Turner (https://github.com/zsinj)
+ * @author Ross Turner (https://github.com/rossturner)
  */
 var ImageUploader = function(config) {
     if (!config || (!config.inputElement) || (!config.inputElement.getAttribute) || config.inputElement.getAttribute('type') !== 'file') {
@@ -59,31 +59,28 @@ ImageUploader.prototype.handleFileSelection = function(file, completionCallback)
         img.src = e.target.result;
 
         img.onload = function(){
-			//Rotate image first if required
-			if (This.config.autoRotate){
-				if (This.config.debug)
-					console.log('ImageUploader: detecting image orientation...');
-				if ( (typeof EXIF.getData === "function") && (typeof EXIF.getTag === "function") ) {
-					EXIF.getData(img, function() {
-						var orientation = EXIF.getTag(this, "Orientation");
-						if (This.config.debug) {
-							console.log('ImageUploader: image orientation from EXIF tag = ' + orientation);
-						}
-						This.scaleImage(img, completionCallback, orientation);
-					});
-				}
-				else{
-					console.error("ImageUploader: can't read EXIF data, the Exif.js library not found");
-					This.scaleImage(img, completionCallback);
-				}
+		//Rotate image first if required
+		if (This.config.autoRotate) {
+			if (This.config.debug)
+				console.log('ImageUploader: detecting image orientation...');
+			if ( (typeof EXIF.getData === "function") && (typeof EXIF.getTag === "function") ) {
+				EXIF.getData(img, function() {
+					var orientation = EXIF.getTag(this, "Orientation");
+					if (This.config.debug) {
+						console.log('ImageUploader: image orientation from EXIF tag = ' + orientation);
+					}
+					This.scaleImage(img, completionCallback, orientation);
+				});
+			} else {
+				console.error("ImageUploader: can't read EXIF data, the Exif.js library not found");
+				This.scaleImage(img, completionCallback);
 			}
-			else{
-			    //No rotation, just scale the image
-                This.scaleImage(img, completionCallback);
-            }
-        }
-    };
-    reader.readAsDataURL(file);
+		} else {
+			//No rotation, just scale the image
+			This.scaleImage(img, completionCallback);
+		}
+	};
+	reader.readAsDataURL(file);
 };
 
 ImageUploader.prototype.drawImage = function(context, img, x, y, width, height, deg, flip, flop, center) {
