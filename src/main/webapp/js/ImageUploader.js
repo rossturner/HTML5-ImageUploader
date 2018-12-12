@@ -58,37 +58,39 @@ ImageUploader.prototype.handleFileSelection = function(file, completionCallback)
     reader.onload = function(e) {
         img.src = e.target.result;
 
-        img.onload = function(){
-		//Rotate image first if required
-		if (This.config.autoRotate) {
-			if (This.config.debug)
-				console.log('ImageUploader: detecting image orientation...');
-			if ( (typeof EXIF.getData === "function") && (typeof EXIF.getTag === "function") ) {
-				EXIF.getData(img, function() {
-					var orientation = EXIF.getTag(this, "Orientation");
-					if (This.config.debug) {
-						console.log('ImageUploader: image orientation from EXIF tag = ' + orientation);
-					}
-					This.scaleImage(img, completionCallback, orientation);
-				});
-			} else {
-				console.error("ImageUploader: can't read EXIF data, the Exif.js library not found");
-				This.scaleImage(img, completionCallback);
-			}
-		} else {
-			//No rotation, just scale the image
-			This.scaleImage(img, completionCallback);
-		}
-	};
+        img.onload = function () {
+            //Rotate image first if required
+            if (This.config.autoRotate) {
+                if (This.config.debug) {
+                    console.log('ImageUploader: detecting image orientation...');
+                }
+                if ((typeof EXIF.getData === "function") && (typeof EXIF.getTag === "function")) {
+                    EXIF.getData(img, function () {
+                        var orientation = EXIF.getTag(this, "Orientation");
+                        if (This.config.debug) {
+                            console.log('ImageUploader: image orientation from EXIF tag = ' + orientation);
+                        }
+                        This.scaleImage(img, completionCallback, orientation);
+                    });
+                } else {
+                    console.error("ImageUploader: can't read EXIF data, the Exif.js library not found");
+                    This.scaleImage(img, completionCallback);
+                }
+            } else {
+                //No rotation, just scale the image
+                This.scaleImage(img, completionCallback);
+            }
+        };
+    };
 	reader.readAsDataURL(file);
 };
 
 ImageUploader.prototype.drawImage = function(context, img, x, y, width, height, deg, flip, flop, center) {
 	context.save();
 
-	if(typeof width === "undefined") width = img.width;
-	if(typeof height === "undefined") height = img.height;
-	if(typeof center === "undefined") center = false;
+	if(typeof width === "undefined") { width = img.width; }
+	if(typeof height === "undefined") { height = img.height; }
+	if(typeof center === "undefined") { center = false; }
 
 	// Set rotation point to center of image, instead of top/left
 	if(center) {
@@ -104,8 +106,8 @@ ImageUploader.prototype.drawImage = function(context, img, x, y, width, height, 
 	context.rotate(rad);
 
 	// Flip/flop the canvas
-	if(flip) flipScale = -1; else flipScale = 1;
-	if(flop) flopScale = -1; else flopScale = 1;
+	if(flip) { flipScale = -1; } else { flipScale = 1; }
+	if(flop) { flopScale = -1; } else { flopScale = 1; }
 	context.scale(flipScale, flopScale);
 
 	// Draw the image    
@@ -126,8 +128,9 @@ ImageUploader.prototype.scaleImage = function(img, completionCallback, orientati
 	var styleWidth  = canvas.style.width;
     var height = canvas.height;
 	var styleHeight = canvas.style.height;
-	if (typeof orientation === 'undefined')
+	if (typeof orientation === 'undefined') {
         orientation = 1;
+    }
     if (orientation) {
 		if (orientation > 4) {
 			canvas.width  = height;
@@ -173,11 +176,12 @@ ImageUploader.prototype.scaleImage = function(img, completionCallback, orientati
 	//Let's find the max available width for scaled image
 	var ratio = canvas.width/canvas.height;
 	var mWidth = Math.min(this.config.maxWidth, ratio*this.config.maxHeight);
-	if ( (this.config.maxSize>0) && (this.config.maxSize<canvas.width*canvas.height/1000000) )
-		mWidth = Math.min(mWidth, Math.floor(Math.sqrt(this.config.maxSize*ratio)*1000));
-	if ( !!this.config.scaleRatio )
-		mWidth = Math.min(mWidth, Math.floor(this.config.scaleRatio*canvas.width));
-	
+	if ( (this.config.maxSize>0) && (this.config.maxSize<canvas.width*canvas.height/1000000) ) {
+        mWidth = Math.min(mWidth, Math.floor(Math.sqrt(this.config.maxSize * ratio) * 1000));
+    }
+	if ( !!this.config.scaleRatio ) {
+        mWidth = Math.min(mWidth, Math.floor(this.config.scaleRatio * canvas.width));
+    }
 	if (this.config.debug){
 		console.log('ImageUploader: original image size = ' + canvas.width + ' px (width) X ' + canvas.height + ' px (height)');
 		console.log('ImageUploader: scaled image size = ' + mWidth + ' px (width) X ' + Math.floor(mWidth/ratio) + ' px (height)');
@@ -196,8 +200,9 @@ ImageUploader.prototype.scaleImage = function(img, completionCallback, orientati
     }
 
     var imageData = canvas.toDataURL('image/jpeg', this.config.quality);
-	if (typeof this.config.onScale === 'function')
-		this.config.onScale(imageData);
+	if (typeof this.config.onScale === 'function') {
+        this.config.onScale(imageData);
+    }
     this.performUpload(imageData, completionCallback);
 };
 
@@ -206,6 +211,9 @@ ImageUploader.prototype.performUpload = function(imageData, completionCallback) 
     var This = this;
     var uploadInProgress = true;
     var headers = this.config.requestHeaders;
+    var headersArray;
+    var i;
+
     xhr.onload = function(e) {
         uploadInProgress = false;
         This.uploadComplete(e, completionCallback);
@@ -218,8 +226,8 @@ ImageUploader.prototype.performUpload = function(imageData, completionCallback) 
     if(typeof headers === 'object' && headers !== null) {
         Object.keys(headers).forEach(function(key,index) {
             if(typeof headers[key] !== 'string') {
-                var headersArray = headers[key];
-                for(var i = 0, j = headersArray.length; i < j; i++) {
+                headersArray = headers[key];
+                for(i = 0, j = headersArray.length; i < j; i++) {
                     xhr.setRequestHeader(key, headersArray[i]);
                 }   
             } else {
@@ -364,8 +372,9 @@ ImageUploader.prototype.setConfig = function(customConfig) {
 		this.config.scaleRatio = null;
 	}
 	this.config.autoRotate = true;
-	if (typeof customConfig.autoRotate === 'boolean')
-		this.config.autoRotate = customConfig.autoRotate;
+	if (typeof customConfig.autoRotate === 'boolean') {
+        this.config.autoRotate = customConfig.autoRotate;
+    }
 
     // Create container if none set
     if (!this.config.workspace) {
