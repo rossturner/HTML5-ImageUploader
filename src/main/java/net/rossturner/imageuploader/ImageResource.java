@@ -1,49 +1,58 @@
 package net.rossturner.imageuploader;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
+import spark.Spark;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.servlet.MultipartConfigElement;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
-import com.sun.jersey.core.util.Base64;
 
 /**
  * Example resource class hosted at the URI path "/myresource"
  */
-@Path("/image")
+@Slf4j
 public class ImageResource {
-	
+
+    public static void main(String[] args) {
+        Spark.staticFiles.location("/public"); // Static files
+
+        Spark.get("/api/image", (req, res) -> {
+            res.type("text/plain");
+            return "Hi there!";
+        });
+
+        Spark.post("/api/image", (req, res) -> {
+
+            Integer value;
+
+            try (InputStream is = req.raw().getInputStream()) {
+                StringWriter writer = new StringWriter();
+                IOUtils.copy(is, writer);
+                String theString = writer.toString();
+                value = theString.length();
+
+                counter++;
+
+                File of = new File("./image"+counter+".jpg");
+                FileOutputStream osf = new FileOutputStream(of);
+                try {
+                    osf.write(Base64.decodeBase64(theString));
+                    osf.flush();
+                } finally {
+                    osf.close();
+                }
+
+            }
+
+            return Integer.toString(value);
+        });
+    }
+
 	static int counter = 0;
-
-	/**
-	 * Method processing HTTP GET requests, producing "text/plain" MIME media
-	 * type.
-	 * 
-	 * @return String that will be send back as a response of type "text/plain".
-	 */
-	@GET
-	@Produces("text/plain")
-	public String getIt() {
-		return "Hi there!";
-	}
-
-	@POST
-    @Produces("text/plain")
-	public String handleImageUpload(final String base64data) throws IOException {
-		counter++;
-		File of = new File("target/image"+counter+".jpg");
-		FileOutputStream osf = new FileOutputStream(of);
-		try {
-			osf.write(Base64.decode(base64data));
-			osf.flush();
-		} finally {
-			osf.close();
-		}
-		return Integer.toString(base64data.length());
-	}
 
 }
