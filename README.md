@@ -4,6 +4,9 @@ The primary goal of this project is ImageUploader.js, a javascript module which 
 
 For demonstration purposes this is packaged with a Java web application with a RESTful service to handle the uploaded images. This is an Apache Maven project, use "mvn clean install" to build the webapp and "mvn jetty:run" to run the app on localhost:8080
 
+## NPM distribution of image resizing
+Npm distribution for just browser image resizing is available [HERE](https://www.npmjs.com/package/browser-image-resizer)
+
 ## Installation and Requirements ##
 Include the ImageUploader.js file into your HTML page. Dependencies (include them first):
 
