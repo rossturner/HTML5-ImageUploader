@@ -116,7 +116,8 @@ ImageUploader.prototype.drawImage = function(context, img, x, y, width, height, 
 	context.restore();
 };
 
-ImageUploader.prototype.scaleImage = function(img, completionCallback, orientation) {
+//run ratio allows the code to keep shrinking an image until the POST data is under a target
+ImageUploader.prototype.scaleImage = function(img, completionCallback, orientation, run_ratio =1) {
     var canvas = document.createElement('canvas');
 	canvas.width = img.width;
 	canvas.height = img.height;
@@ -175,7 +176,7 @@ ImageUploader.prototype.scaleImage = function(img, completionCallback, orientati
 
 	//Let's find the max available width for scaled image
 	var ratio = canvas.width/canvas.height;
-	var mWidth = Math.min(this.config.maxWidth, ratio*this.config.maxHeight);
+	var mWidth = Math.min(this.config.maxWidth, ratio*this.config.maxHeight, this.config.maxWidth * run_ratio);
 	if ( (this.config.maxSize>0) && (this.config.maxSize<canvas.width*canvas.height/1000000) ) {
         mWidth = Math.min(mWidth, Math.floor(Math.sqrt(this.config.maxSize * ratio) * 1000));
     }
@@ -203,6 +204,14 @@ ImageUploader.prototype.scaleImage = function(img, completionCallback, orientati
 	if (typeof this.config.onScale === 'function') {
         this.config.onScale(imageData);
     }
+	if (this.config.debug) {
+     		console.log('upload candidate size is ' + imageData.length);
+	}
+	if (imageData.length > this.config.maxUpload) {
+        	if (this.config.debug) {  console.log("retrying resize at " + run_ratio); }
+                this.scaleImage(img, filename, completionCallback, orientation,run_ratio - 0.1)
+                return false;
+        }	
     this.performUpload(imageData, completionCallback);
 };
 
