@@ -85,7 +85,8 @@
                 $('#progressbar').progressbar({ value: (event.done / event.total) * 100 })
             },
             maxWidth: 1024,
-            quality: 0.90, 
+	    maxUpload: 1048576   ,  // this specifies a limit for the size of the base-64 upload to the server          
+	  quality: 0.90, 
             //timeout: 5000,
             debug : true
         });
